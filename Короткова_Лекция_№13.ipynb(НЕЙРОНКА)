@@ -1,0 +1,1053 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Sanya505/BranchTest/blob/main/%D0%9A%D0%BE%D1%80%D0%BE%D1%82%D0%BA%D0%BE%D0%B2%D0%B0_%D0%9B%D0%B5%D0%BA%D1%86%D0%B8%D1%8F_%E2%84%9613.ipynb(%D0%9D%D0%95%D0%99%D0%A0%D0%9E%D0%9D%D0%9A%D0%90)\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "goKCGXSUoln1"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/162084/000.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "fTAUCMGRqM75"
+      },
+      "source": [
+        "___\n",
+        "\n",
+        "<font color=\"#000000\">Основы Python и глубокого обучения</font>\n",
+        "<font color=\"#AEBAC5\"> → </font>\n",
+        "<font color=\"#AEBAC5\">Компьютерное зрение (CV)</font>\n",
+        "<font color=\"#AEBAC5\"> → </font>\n",
+        "<font color=\"#AEBAC5\">Обработка естественного языка (NLP)</font>\n",
+        "\n",
+        "___"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "L9zg-X0rPHEj"
+      },
+      "source": [
+        "<h1><strong><font color=\"#FF732B\">Прошлая лекция: узнали, в чем идея обратного распространения</font></strong></h1>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Hqk4K7HVwl56"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107755/giffycanvas.gif\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7FCdI7CO7A24"
+      },
+      "source": [
+        "<h1><strong><font color=\"#FF732B\">Один цикл прямого распространения</font></strong></h1>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ks1WxLgJpulh"
+      },
+      "source": [
+        "<h3><strong><font color=\"#809BFF\">Задача №1</font></strong></h3>\n",
+        "\n",
+        "Реализуй прямое распространение для нашей трехслойной сети."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "NDzZ8VSH3Pqm"
+      },
+      "source": [
+        "# импорт библиотек\n",
+        "import numpy as np"
+      ],
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "7bXv-aCznItF",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "e6c49d95-9fd1-43b9-ca2c-9aaa7cd08efc"
+      },
+      "source": [
+        "password_combinations = np.array([\n",
+        "                                  [ 1, 0, 1 ],\n",
+        "                                  [ 0, 1, 1 ],\n",
+        "                                  [ 0, 0, 1 ],\n",
+        "                                  [ 1, 1, 1 ]\n",
+        "])\n",
+        "\n",
+        "locked_unlocked = np.array([\n",
+        "                            [1],\n",
+        "                            [1],\n",
+        "                            [0],\n",
+        "                            [0]\n",
+        "])\n",
+        "\n",
+        "# делаем псевдо-случайные значения\n",
+        "# для весов повторяющимися\n",
+        "np.random.seed(1)\n",
+        "\n",
+        "# кол-во скрытых узлов\n",
+        "hidden_size = 4\n",
+        "\n",
+        "# рандомно инициализируем наборы весов, которые соединяют 3 слоя\n",
+        "weights_0_1 = 2 * np.random.random((3, hidden_size)) - 1\n",
+        "weights_1_2 = 2 * np.random.random((hidden_size, 1)) - 1\n",
+        "\n",
+        "# входной слой (комбинация пароля)\n",
+        "layer_0 = password_combinations[0]\n",
+        "\n",
+        "# скрытый слой\n",
+        "layer_1 = layer_0.dot(weights_0_1)\n",
+        "\n",
+        "# прогноз\n",
+        "layer_2 = layer_1.dot(weights_1_2)\n",
+        "\n",
+        "# напечатай значения узлов среднем слое\n",
+        "layer_1"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([-0.37242104,  0.51828245, -1.16138222, -0.02489585])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Fqv_4vWMqN23"
+      },
+      "source": [
+        "<h1><strong><font color=\"#FF732B\">Добавляем функцию активации relu() в прямое распространение</font></strong></h1>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "B2Jx2lSGoYQD"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107756/5.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "LlqIIz-Gu1y_"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107757/6.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Sj9pcXxzu2RN"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107758/7.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "(3 > 0) * 3"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "tBAyHJCX4EI2",
+        "outputId": "ae6f217c-f5fa-4155-b0d9-af7c17efb299"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "3"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 30
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "5WYwdaRHu2m8"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107759/8.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107760/9.png\"></p>"
+      ],
+      "metadata": {
+        "id": "YEXRnEOiQQzj"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "9kdkkytGnaCV"
+      },
+      "source": [
+        "<h3><strong><font color=\"#809BFF\">Задача №2</font></strong></h3>\n",
+        "\n",
+        "Реализуй прямое распространение, добавив нелинейность с помощью функции `relu`."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "5ioarQm8m3pp",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "6ff670a0-cb4a-47d2-d41e-78c4cb6fa105"
+      },
+      "source": [
+        "password_combinations = np.array([\n",
+        "                                  [ 1, 0, 1 ],\n",
+        "                                  [ 0, 1, 1 ],\n",
+        "                                  [ 0, 0, 1 ],\n",
+        "                                  [ 1, 1, 1 ]\n",
+        "])\n",
+        "\n",
+        "locked_unlocked = np.array([\n",
+        "                            [1],\n",
+        "                            [1],\n",
+        "                            [0],\n",
+        "                            [0]\n",
+        "])\n",
+        "\n",
+        "# делаем псевдо-случайные значения\n",
+        "# для весов повторяющимися\n",
+        "np.random.seed(1)\n",
+        "\n",
+        "# кол-во скрытых узлов\n",
+        "hidden_size = 4\n",
+        "\n",
+        "# рандомно инициализируем наборы весов, которые соединяют 3 слоя\n",
+        "weights_0_1 = 2 * np.random.random((3, hidden_size)) - 1\n",
+        "weights_1_2 = 2 * np.random.random((hidden_size, 1)) - 1\n",
+        "\n",
+        "# функция активации, которая возвращает взвешенную сумму, если она больше 0;\n",
+        "# иначе возвращает 0\n",
+        "def relu(weighted_sum):\n",
+        "  return (weighted_sum > 0) * weighted_sum\n",
+        "\n",
+        "# входной слой (комбинация пароля)\n",
+        "layer_0 = password_combinations[0]\n",
+        "\n",
+        "# скрытый слой\n",
+        "layer_1 = relu(layer_0.dot(weights_0_1))\n",
+        "\n",
+        "# прогноз\n",
+        "layer_2 = layer_1.dot(weights_1_2)\n",
+        "\n",
+        "# напечатай значения узлов среднем слое\n",
+        "layer_1"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([-0.        ,  0.51828245, -0.        , -0.        ])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 40
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zNdi5FjtQW1h"
+      },
+      "source": [
+        "<h1><strong><font color=\"#FF732B\">Один цикл обратного распространения: рассмотрим каждую строчку</font></strong></h1>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "zrpOW3zc-Jf0"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107761/10.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "rmoGE3i1O9Jl"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107762/11.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "uQ7s6Lk5PGk8"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107763/12.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "jzOeSMLcPNe3"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107764/13.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "gTOMoUn3PqO4"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107765/14.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "4FV_8lfLQOS6"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107766/15.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "qqh89fAJaZIX"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107767/16.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "c2lB8Zjjaa35"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107768/17.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "W3jzAgP3odTN"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107769/18.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "lsVA9wCGoeZS"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107770/19.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "77g48scxIVEF"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107771/20.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "YfimlX6oIWJF"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107772/21.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "2BD_t85WIWlx"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/108037/22.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "oUEoSXxAIW4p"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/108038/23.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "YDA5Q3fJxnkh"
+      },
+      "source": [
+        "<h3><strong><font color=\"#809BFF\">Задача №3</font></strong></h3>\n",
+        "\n",
+        "Реализуй один цикл обратного распространения, добавив вычисления разностей для скрытого слоя `layer_1`."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "layer_0"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "Z0SVoFmW_c-3",
+        "outputId": "130a7967-9538-446e-d946-3ad742f73ab2"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[1, 0, 1]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 49
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "layer_1_delta.T.dot(layer_0)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "l-R2GNnt_fXK",
+        "outputId": "a44b5660-0d25-49bd-a1ef-bded91a3eb25"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "array([[0.3594196 , 0.        , 0.3594196 ],\n",
+              "       [0.        , 0.        , 0.        ],\n",
+              "       [0.57475031, 0.        , 0.57475031],\n",
+              "       [0.        , 0.        , 0.        ]])"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 55
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "l5posxSFxlBC",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "2c91cc3e-e83f-4119-c7a6-927ac45bbe3f"
+      },
+      "source": [
+        "password_combinations = np.array([\n",
+        "                                  [ 1, 0, 1 ],\n",
+        "                                  [ 0, 1, 1 ],\n",
+        "                                  [ 0, 0, 1 ],\n",
+        "                                  [ 1, 1, 1 ]\n",
+        "])\n",
+        "\n",
+        "locked_unlocked = np.array([\n",
+        "                            [1],\n",
+        "                            [1],\n",
+        "                            [0],\n",
+        "                            [0]\n",
+        "])\n",
+        "\n",
+        "# делаем псевдо-случайные значения\n",
+        "# для весов повторяющимися\n",
+        "np.random.seed(1)\n",
+        "\n",
+        "alpha = 0.2\n",
+        "hidden_size = 4\n",
+        "\n",
+        "# рандомно инициализируем наборы весов, которые соединяют 3 слоя\n",
+        "weights_0_1 = 2 * np.random.random((3, hidden_size)) - 1\n",
+        "weights_1_2 = 2 * np.random.random((hidden_size, 1)) - 1\n",
+        "\n",
+        "# функция активации, которая возвращает взвешенную сумму, если она больше 0;\n",
+        "# иначе возвращает 0\n",
+        "def relu(weighted_sum):\n",
+        "  return (weighted_sum > 0) * weighted_sum\n",
+        "\n",
+        "# функция, которая зануляет дельты, если значение узла 0;\n",
+        "# иначе возвращает дельту\n",
+        "def derivative_of_relu(weighted_sum):\n",
+        "  return weighted_sum > 0\n",
+        "\n",
+        "\n",
+        "layer_0 = password_combinations[0:1]\n",
+        "print(f'Вход:\\n{layer_0}')\n",
+        "\n",
+        "layer_1 = np.dot(layer_0, weights_0_1)\n",
+        "print(f'\\nСкрытый слой до relu:\\n{layer_1}')\n",
+        "\n",
+        "layer_1 = relu(layer_1)\n",
+        "print(f'\\nСкрытый слой после relu:\\n{layer_1}')\n",
+        "\n",
+        "# прогноз\n",
+        "layer_2 = np.dot(layer_1, weights_1_2)\n",
+        "\n",
+        "# вычисление ошибки\n",
+        "error = (layer_2 - locked_unlocked[0:1]) ** 2\n",
+        "\n",
+        "layer_2_delta = layer_2 - locked_unlocked[0:1]\n",
+        "print(f'\\nДельта для прогноза:\\n{layer_2_delta}')\n",
+        "\n",
+        "layer_1_delta = layer_2_delta.dot(weights_1_2.T)\n",
+        "print(f'\\nДельты в скрытом слое до derivative_of_relu:\\n{layer_1_delta}')\n",
+        "\n",
+        "layer_1_delta *= derivative_of_relu(layer_1_delta)\n",
+        "print(f'\\nДельты в скрытом слое после derivative_of_relu:\\n{layer_1_delta}')\n",
+        "\n",
+        "# вычисление наборов производных\n",
+        "weight_delta_1_2 = layer_1.T.dot(layer_2_delta)\n",
+        "weight_delta_0_1 = layer_0.T.dot(layer_1_delta)\n",
+        "\n",
+        "# корректировка наборов весов\n",
+        "weights_1_2 -= alpha * weight_delta_1_2\n",
+        "weights_0_1 -= alpha * weight_delta_0_1\n",
+        "\n",
+        "print(weights_1_2)\n",
+        "print(weights_0_1)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Вход:\n",
+            "[[1 0 1]]\n",
+            "\n",
+            "Скрытый слой до relu:\n",
+            "[[-0.37242104  0.51828245 -1.16138222 -0.02489585]]\n",
+            "\n",
+            "Скрытый слой после relu:\n",
+            "[[-0.          0.51828245 -0.         -0.        ]]\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.60805673]]\n",
+            "\n",
+            "Дельты в скрытом слое до derivative_of_relu:\n",
+            "[[ 0.3594196  -0.45983371  0.57475031 -0.20730783]]\n",
+            "\n",
+            "Дельты в скрытом слое после derivative_of_relu:\n",
+            "[[ 0.3594196  -0.          0.57475031 -0.        ]]\n",
+            "[[-0.5910955 ]\n",
+            " [ 0.8192639 ]\n",
+            " [-0.94522481]\n",
+            " [ 0.34093502]]\n",
+            "[[-0.23783991  0.44064899 -1.11472131 -0.39533485]\n",
+            " [-0.70648822 -0.81532281 -0.62747958 -0.30887855]\n",
+            " [-0.27834897  0.07763347 -0.27656103  0.370439  ]]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hwWBJ2Q9P0M5"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107775/24.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "lKugJvCEC4pA"
+      },
+      "source": [
+        "<h1><strong><font color=\"#FF732B\">Кульминация!</font></strong></h1>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107750/24.5.gif\"></p>"
+      ],
+      "metadata": {
+        "id": "NFpYqs836MiN"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ePCeY5WexXBb"
+      },
+      "source": [
+        "<h3><strong><font color=\"#809BFF\">Задача №4</font></strong></h3>\n",
+        "\n",
+        "Собери весь код вместе и и реши задачу с предсказанием комбинации пароля для открытия двери."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "UsmA3Q87xfHs",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "outputId": "aa0edf7c-4d88-4985-a661-42d69f40f1ee"
+      },
+      "source": [
+        "password_combinations = np.array([\n",
+        "                                  [ 1, 0, 1 ],\n",
+        "                                  [ 0, 1, 1 ],\n",
+        "                                  [ 0, 0, 1 ],\n",
+        "                                  [ 1, 1, 1 ]\n",
+        "])\n",
+        "\n",
+        "locked_unlocked = np.array([\n",
+        "                            [1],\n",
+        "                            [1],\n",
+        "                            [0],\n",
+        "                            [0]\n",
+        "])\n",
+        "\n",
+        "# делаем псевдо-случайные значения\n",
+        "# для весов повторяющимися\n",
+        "np.random.seed(1)\n",
+        "\n",
+        "alpha = 0.2\n",
+        "\n",
+        "# кол-во скрытых узлов\n",
+        "hidden_size = 4\n",
+        "\n",
+        "# рандомно инициализируем наборы весов, которые соединяют 3 слоя\n",
+        "weights_0_1 = 2 * np.random.random((3,hidden_size)) - 1\n",
+        "weights_1_2 = 2 * np.random.random((hidden_size,1)) - 1\n",
+        "\n",
+        "# функция активации, которая возвращает взвешенную сумму, если она больше 0;\n",
+        "# иначе возвращает 0\n",
+        "def relu(weighted_sum):\n",
+        "  return (weighted_sum > 0) * weighted_sum\n",
+        "\n",
+        "# функция, которая зануляет дельты, если значение узла 0;\n",
+        "# иначе возвращает дельту\n",
+        "def derivative_of_relu(weighted_sum):\n",
+        "    return weighted_sum > 0\n",
+        "\n",
+        "# остальной код\n",
+        "for iteration in range(4):\n",
+        "  error = 0\n",
+        "  print('_______________________')\n",
+        "  print(iteration)\n",
+        "  for i in range(len(password_combinations)):\n",
+        "    layer_0 = password_combinations[i:i+1]\n",
+        "    print(f'\\nlayer_0:\\n{layer_0}')\n",
+        "\n",
+        "    layer_1 = relu(np.dot(layer_0, weights_0_1))\n",
+        "    print(f'\\nlayer_1:\\n{layer_1}')\n",
+        "\n",
+        "    layer_2 = np.dot(layer_1, weights_1_2)\n",
+        "    print(f'\\nlayer_2:\\n{layer_2}')\n",
+        "\n",
+        "    error += np.sum((layer_2 - locked_unlocked[i:i+1]) ** 2)\n",
+        "    print(f'\\nОшибка: {error}')\n",
+        "\n",
+        "    layer_2_delta = (locked_unlocked[i:i+1] - layer_2)\n",
+        "    print(f'\\nДельта для прогноза:\\n{layer_2_delta}')\n",
+        "\n",
+        "    layer_1_delta = layer_2_delta.dot(weights_1_2.T) * derivative_of_relu(layer_1)\n",
+        "\n",
+        "    # вычисление производных и корректировка наборов весов\n",
+        "    weights_1_2 += alpha * layer_1.T.dot(layer_2_delta)\n",
+        "    weights_0_1 += alpha * layer_0.T.dot(layer_1_delta)"
+      ],
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "_______________________\n",
+            "0\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.51828245 -0.         -0.        ]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.39194327]]\n",
+            "\n",
+            "Ошибка: 0.3697329913497495\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.60805673]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.         -0.         -0.          0.06156045]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.02098811]]\n",
+            "\n",
+            "Ошибка: 1.3281972624432705\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.97901189]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.16960021 -0.          0.43719489]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.29327219]]\n",
+            "\n",
+            "Ошибка: 1.4142058374213209\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.29327219]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0. -0. -0. -0.]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.]]\n",
+            "\n",
+            "Ошибка: 1.4142058374213209\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.]]\n",
+            "_______________________\n",
+            "1\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.65416247 -0.          0.02115568]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.53634943]]\n",
+            "\n",
+            "Ошибка: 0.21497184958404528\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.46365057]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.         -0.         -0.          0.20472264]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.06741661]]\n",
+            "\n",
+            "Ошибка: 1.0846836297669273\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.93258339]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.19659472 -0.          0.50826656]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.35781632]]\n",
+            "\n",
+            "Ошибка: 1.212716151470694\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.35781632]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0. -0. -0. -0.]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.]]\n",
+            "\n",
+            "Ошибка: 1.212716151470694\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.]]\n",
+            "_______________________\n",
+            "2\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.74200005 -0.          0.1169876 ]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.67382026]]\n",
+            "\n",
+            "Ошибка: 0.10639322529131888\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.32617974]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.         -0.         -0.          0.32286708]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.10937117]]\n",
+            "\n",
+            "Ошибка: 0.8996129444814701\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.89062883]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.1901723  -0.          0.56390855]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.39543008]]\n",
+            "\n",
+            "Ошибка: 1.0559778908677695\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.39543008]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.         -0.         -0.          0.06882925]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.02420473]]\n",
+            "\n",
+            "Ошибка: 1.056563760006402\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.02420473]]\n",
+            "_______________________\n",
+            "3\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.78215346 -0.          0.18578581]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.76081998]]\n",
+            "\n",
+            "Ошибка: 0.05720708112847012\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.23918002]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.         -0.         -0.          0.42561001]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.15331219]]\n",
+            "\n",
+            "Ошибка: 0.7740873286198319\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[0.84668781]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[0 0 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.          0.16119306 -0.          0.60867208]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.41249809]]\n",
+            "\n",
+            "Ошибка: 0.9442420031647857\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.41249809]]\n",
+            "\n",
+            "layer_0:\n",
+            "[[1 1 1]]\n",
+            "\n",
+            "layer_1:\n",
+            "[[-0.         -0.         -0.          0.18366759]]\n",
+            "\n",
+            "layer_2:\n",
+            "[[0.07017463]]\n",
+            "\n",
+            "Ошибка: 0.9491664812884164\n",
+            "\n",
+            "Дельта для прогноза:\n",
+            "[[-0.07017463]]\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hDq6xfeXlw4W"
+      },
+      "source": [
+        "<p><img src=\"https://u.foxford.ngcdn.ru/uploads/inner_file/file/107776/25.png\"></p>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "_2PMFLtMinid"
+      },
+      "source": [
+        "<h1><strong><font color=\"#FC4262\">Домашняя работа</font></strong></h1>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BdNn502i2vTz"
+      },
+      "source": [
+        "Вот несколько шагов, чтобы настроить удобную работу над домашними задачами:\n",
+        "\n",
+        "1. В сервисе [Google Drive](https://www.google.com/intl/ru/drive/) создай папку `foxford_ds_study` (если еще этого не сделал), в которой ты будешь хранить все учебные материалы с этого курса.\n",
+        "2. Сохрани копию этой тетрадки `Лекция №11.ipynb` *(File → Save a copy in Drive)* в папку `foxford_ds_study`.\n",
+        "\n",
+        "Зачем это нужно?\n",
+        "\n",
+        "Файл, в котором работает преподаватель — это «оригинальный» файл и мы не можем работать в нем все вместе, ведь у каждого свой код! Каждому ученику необходимо сделать свою копию файла и выполнять домашку именно в ней. Если хочешь, ты можешь назвать свой файл по имени, например, `Лекция №11 Иван Кнопочкин.ipynb`.\n",
+        "\n",
+        "В начале следующей лекции мы обсудим эти задачи вместе."
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "BKIX2F8kc8Dg"
+      },
+      "source": [
+        "<h3><strong><font color=\"#809BFF\">Задача №5</font></strong></h3>\n",
+        "\n",
+        "В Задаче №4 мы написали весь алгоритм предсказания для трехслойной сети с обратным распространением. Код получился очень ёмким и как обычно мы рекомендуем дополнительно самостоятельно «покапаться» в нем и понять как он работает.\n",
+        "\n",
+        "Это будет критически важно для следующих занятий, чтобы сразу и без проблем понимать, о чем говорит преподаватель."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "JNgCjJXO7VD8"
+      },
+      "source": [
+        "# твой код"
+      ],
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
